@@ -125,6 +125,42 @@
             padding: 15px;
             border-radius: 8px;
         }
+
+        /* INTRO VIDEO + FADE (معدّل عشان البكسلة) */
+        #introVideo {
+            position: fixed;
+            inset: 0;
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+            background: #000;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            image-rendering: auto;
+        }
+        #introVideo.show {
+            opacity: 1;
+        }
+        #skipIntro {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.8);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #skipIntro.show {
+            opacity: 1;
+        }
+
+        /* MAIN MENU */
         #mainMenu {
             position: absolute;
             inset: 0;
@@ -188,6 +224,16 @@
     </style>
 </head>
 <body>
+
+<!-- INTRO -->
+<video id="introVideo"
+       src="assets/intro.mp4"
+       autoplay
+       muted
+       playsinline>
+</video>
+<button id="skipIntro" onclick="endIntro()">Skip</button>
+
 <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
 
@@ -202,36 +248,16 @@
         <div id="menuSubtitle">2 Multiplayer • Nitro • Drift • Replay</div>
 
         <div class="menu-buttons">
-            <button class="menu-btn" onclick="selectTrackAndStart('classic')">
-                Classic Circuit
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('super_oval')">
-                Super Oval
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('snake')">
-                The Snake
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('square_city')">
-                Square City
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('hairpin')">
-                Hairpin Turns
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('xcross')">
-                The X-Cross
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('narrow_hell')">
-                Narrow Hell
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('spiral')">
-                The Spiral
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('island')">
-                Island Hopping
-            </button>
-            <button class="menu-btn" onclick="selectTrackAndStart('finale')">
-                Grand Finale
-            </button>
+            <button class="menu-btn" onclick="selectTrackAndStart('classic')">Classic Circuit</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('super_oval')">Super Oval</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('snake')">The Snake</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('square_city')">Square City</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('hairpin')">Hairpin Turns</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('xcross')">The X-Cross</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('narrow_hell')">Narrow Hell</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('spiral')">The Spiral</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('island')">Island Hopping</button>
+            <button class="menu-btn" onclick="selectTrackAndStart('finale')">Grand Finale</button>
         </div>
 
         <div class="menu-small">
@@ -287,6 +313,36 @@
 </div>
 
 <script>
+/* INTRO FADE IN/OUT */
+function endIntro() {
+    const v = document.getElementById('introVideo');
+    const btn = document.getElementById('skipIntro');
+    if (!v) return;
+
+    v.classList.remove('show');
+    if (btn) btn.classList.remove('show');
+
+    setTimeout(() => {
+        v.pause();
+        v.style.display = 'none';
+        if (btn) btn.style.display = 'none';
+    }, 800);
+}
+
+window.addEventListener('load', () => {
+    const v = document.getElementById('introVideo');
+    const btn = document.getElementById('skipIntro');
+    if (!v) return;
+
+    requestAnimationFrame(() => {
+        v.classList.add('show');
+        if (btn) btn.classList.add('show');
+    });
+
+    v.addEventListener('ended', endIntro);
+});
+
+/* ====== GAME CODE ====== */
 const TILE_SIZE = 64;
 const MAP_WIDTH = 30;
 const MAP_HEIGHT = 20;
@@ -307,17 +363,10 @@ const TRACKS = {
             return m1;
         })(),
         start: { x: 2.5, y: 13.5 },
-        checkpointZone: {
-            xMinTiles: 25, xMaxTiles: 28,
-            yMinTiles: 2,  yMaxTiles: 5
-        },
-        finishZone: {
-            xMinTiles: 1, xMaxTiles: 5,
-            yMinTiles: 11, yMaxTiles: 16
-        },
+        checkpointZone: { xMinTiles: 25, xMaxTiles: 28, yMinTiles: 2, yMaxTiles: 5 },
+        finishZone: { xMinTiles: 1, xMaxTiles: 5, yMinTiles: 11, yMaxTiles: 16 },
         powerups: []
     },
-
     super_oval: {
         name: "Super Oval",
         map: (function(){
@@ -336,17 +385,10 @@ const TRACKS = {
             return m2;
         })(),
         start: { x: 3.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 24, xMaxTiles: 28,
-            yMinTiles: 2,  yMaxTiles: 6
-        },
-        finishZone: {
-            xMinTiles: 1, xMaxTiles: 6,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 24, xMaxTiles: 28, yMinTiles: 2, yMaxTiles: 6 },
+        finishZone: { xMinTiles: 1, xMaxTiles: 6, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     snake: {
         name: "The Snake",
         map: (function(){
@@ -368,17 +410,10 @@ const TRACKS = {
             return m3;
         })(),
         start: { x: 1.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 24, xMaxTiles: 28,
-            yMinTiles: 6,  yMaxTiles: 15
-        },
-        finishZone: {
-            xMinTiles: 0, xMaxTiles: 4,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 24, xMaxTiles: 28, yMinTiles: 6, yMaxTiles: 15 },
+        finishZone: { xMinTiles: 0, xMaxTiles: 4, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     square_city: {
         name: "Square City",
         map: (function(){
@@ -393,17 +428,10 @@ const TRACKS = {
             return m4;
         })(),
         start: { x: 2.5, y: 12.5 },
-        checkpointZone: {
-            xMinTiles: 14, xMaxTiles: 17,
-            yMinTiles: 2,  yMaxTiles: 9
-        },
-        finishZone: {
-            xMinTiles: 1, xMaxTiles: 5,
-            yMinTiles: 11, yMaxTiles: 16
-        },
+        checkpointZone: { xMinTiles: 14, xMaxTiles: 17, yMinTiles: 2, yMaxTiles: 9 },
+        finishZone: { xMinTiles: 1, xMaxTiles: 5, yMinTiles: 11, yMaxTiles: 16 },
         powerups: []
     },
-
     hairpin: {
         name: "Hairpin Turns",
         map: (function(){
@@ -420,17 +448,10 @@ const TRACKS = {
             return m5;
         })(),
         start: { x: 2.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 20, xMaxTiles: 27,
-            yMinTiles: 4,  yMaxTiles: 16
-        },
-        finishZone: {
-            xMinTiles: 1, xMaxTiles: 5,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 20, xMaxTiles: 27, yMinTiles: 4, yMaxTiles: 16 },
+        finishZone: { xMinTiles: 1, xMaxTiles: 5, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     xcross: {
         name: "The X-Cross",
         map: (function(){
@@ -445,17 +466,10 @@ const TRACKS = {
             return m6;
         })(),
         start: { x: 1.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 10, xMaxTiles: 22,
-            yMinTiles: 4,  yMaxTiles: 16
-        },
-        finishZone: {
-            xMinTiles: 0, xMaxTiles: 4,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 10, xMaxTiles: 22, yMinTiles: 4, yMaxTiles: 16 },
+        finishZone: { xMinTiles: 0, xMaxTiles: 4, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     narrow_hell: {
         name: "Narrow Hell",
         map: (function(){
@@ -470,17 +484,10 @@ const TRACKS = {
             return m7;
         })(),
         start: { x: 1.5, y: 12.5 },
-        checkpointZone: {
-            xMinTiles: 5, xMaxTiles: 25,
-            yMinTiles: 8, yMaxTiles: 11
-        },
-        finishZone: {
-            xMinTiles: 0, xMaxTiles: 4,
-            yMinTiles: 10, yMaxTiles: 14
-        },
+        checkpointZone: { xMinTiles: 5, xMaxTiles: 25, yMinTiles: 8, yMaxTiles: 11 },
+        finishZone: { xMinTiles: 0, xMaxTiles: 4, yMinTiles: 10, yMaxTiles: 14 },
         powerups: []
     },
-
     spiral: {
         name: "The Spiral",
         map: (function(){
@@ -499,17 +506,10 @@ const TRACKS = {
             return m8;
         })(),
         start: { x: 1.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 20, xMaxTiles: 28,
-            yMinTiles: 7,  yMaxTiles: 15
-        },
-        finishZone: {
-            xMinTiles: 0, xMaxTiles: 4,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 20, xMaxTiles: 28, yMinTiles: 7, yMaxTiles: 15 },
+        finishZone: { xMinTiles: 0, xMaxTiles: 4, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     island: {
         name: "Island Hopping",
         map: (function(){
@@ -526,17 +526,10 @@ const TRACKS = {
             return m9;
         })(),
         start: { x: 1.5, y: 10.5 },
-        checkpointZone: {
-            xMinTiles: 10, xMaxTiles: 26,
-            yMinTiles: 2,  yMaxTiles: 18
-        },
-        finishZone: {
-            xMinTiles: 0, xMaxTiles: 4,
-            yMinTiles: 8, yMaxTiles: 13
-        },
+        checkpointZone: { xMinTiles: 10, xMaxTiles: 26, yMinTiles: 2, yMaxTiles: 18 },
+        finishZone: { xMinTiles: 0, xMaxTiles: 4, yMinTiles: 8, yMaxTiles: 13 },
         powerups: []
     },
-
     finale: {
         name: "Grand Finale",
         map: (function(){
@@ -551,14 +544,8 @@ const TRACKS = {
             return m10;
         })(),
         start: { x: 2.5, y: 12.5 },
-        checkpointZone: {
-            xMinTiles: 14, xMaxTiles: 17,
-            yMinTiles: 2,  yMaxTiles: 18
-        },
-        finishZone: {
-            xMinTiles: 1, xMaxTiles: 5,
-            yMinTiles: 10, yMaxTiles: 14
-        },
+        checkpointZone: { xMinTiles: 14, xMaxTiles: 17, yMinTiles: 2, yMaxTiles: 18 },
+        finishZone: { xMinTiles: 1, xMaxTiles: 5, yMinTiles: 10, yMaxTiles: 14 },
         powerups: []
     }
 };
@@ -571,13 +558,8 @@ class ReplayManager {
         this.playing = false;
         this.index = 0;
     }
-    record(input) {
-        this.frames.push(JSON.parse(JSON.stringify(input.keys)));
-    }
-    startPlayback() {
-        this.playing = true;
-        this.index = 0;
-    }
+    record(input) { this.frames.push(JSON.parse(JSON.stringify(input.keys))); }
+    startPlayback() { this.playing = true; this.index = 0; }
     getFrameInput() {
         if (this.index >= this.frames.length) {
             this.playing = false;
@@ -585,11 +567,7 @@ class ReplayManager {
         }
         return this.frames[this.index++];
     }
-    reset() {
-        this.frames = [];
-        this.playing = false;
-        this.index = 0;
-    }
+    reset() { this.frames = []; this.playing = false; this.index = 0; }
 }
 
 class InputHandler {
@@ -625,9 +603,7 @@ class Camera {
         if(this.shakeStrength > 0) this.shakeStrength *= 0.9;
         if(this.shakeStrength < 0.5) this.shakeStrength = 0;
     }
-    shake(amount) {
-        this.shakeStrength = amount;
-    }
+    shake(amount) { this.shakeStrength = amount; }
     apply(ctx) {
         ctx.save();
         const shakeX = (Math.random() - 0.5) * this.shakeStrength;
@@ -636,9 +612,7 @@ class Camera {
         ctx.scale(this.zoom, this.zoom);
         ctx.translate(-this.x, -this.y);
     }
-    restore(ctx) {
-        ctx.restore();
-    }
+    restore(ctx) { ctx.restore(); }
 }
 
 class Particle {
@@ -672,7 +646,6 @@ class Particle {
     }
 }
 
-/* SOUND MANAGER */
 class SoundManager {
     constructor() {
         this.engine = document.getElementById('sndEngine');
@@ -814,7 +787,6 @@ class Car {
 
         let drag = this.friction;
         let currentMaxSpeed = this.maxSpeed;
-
         if (tile === 0) {
             drag = 0.90;
             currentMaxSpeed = 5;
@@ -1040,17 +1012,11 @@ class Game {
         const sy = t.start.y * TILE_SIZE;
 
         this.p1 = new Car(sx, sy, '#ff4757',
-            {
-                up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD',
-                drift: 'Space', nitro: 'ShiftLeft'
-            },
+            { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', drift: 'Space', nitro: 'ShiftLeft' },
             'PLAYER 1');
 
         this.p2 = new Car(sx, sy, '#1e90ff',
-            {
-                up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight',
-                drift: 'ShiftRight', nitro: 'ShiftRight'
-            },
+            { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', drift: 'ShiftRight', nitro: 'ShiftRight' },
             'PLAYER 2');
 
         const cz = this.currentTrack.checkpointZone;
@@ -1264,7 +1230,6 @@ class Game {
                     this.ctx.fillStyle = "#9b59b6";
                     this.ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
                     this.ctx.shadowBlur = 0;
-
                     this.ctx.fillStyle = "#fff";
                     this.ctx.beginPath();
                     this.ctx.arc(px+32, py+32, 12, 0, Math.PI*2);
